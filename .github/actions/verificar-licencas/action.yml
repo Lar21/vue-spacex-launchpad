@@ -1,0 +1,46 @@
+name: Verificar licenças das dependências (lockfiles)
+description: >
+  Lê os arquivos de dependência do repositório (Python, Node, Rust, Go,
+  Java/Kotlin, .NET, Elixir e iOS), consulta a licença de cada pacote no
+  deps.dev, hex.pm e CocoaPods, e falha se alguma licença proibida não tiver
+  exceção aprovada. Não instala as dependências nem precisa de Docker.
+
+inputs:
+  caminho:
+    description: 'Diretório a varrer, relativo à raiz do repositório'
+    required: false
+    default: '.'
+  licencas_negadas:
+    description: 'Licenças proibidas (SPDX) separadas por vírgula'
+    required: false
+    default: 'GPL-3.0,AGPL-3.0,LGPL-3.0'
+  excecoes:
+    description: 'Exceções aprovadas, uma por linha, no formato pacote|licenca (o pacote aceita glob)'
+    required: false
+    default: ''
+  ignorar:
+    description: 'Arquivos ou diretórios a ignorar, um glob por linha, relativos a caminho'
+    required: false
+    default: ''
+
+runs:
+  using: composite
+  steps:
+    - name: Preparar Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Verificar licenças
+      shell: bash
+      env:
+        CAMINHO: ${{ inputs.caminho }}
+        LICENCAS_NEGADAS: ${{ inputs.licencas_negadas }}
+        EXCECOES: ${{ inputs.excecoes }}
+        IGNORAR: ${{ inputs.ignorar }}
+      run: |
+        python "$GITHUB_ACTION_PATH/verificar_licencas.py" \
+          --caminho "$CAMINHO" \
+          --negadas "$LICENCAS_NEGADAS" \
+          --excecoes "$EXCECOES" \
+          --ignorar "$IGNORAR"

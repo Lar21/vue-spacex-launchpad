@@ -1,0 +1,30 @@
+name: Verificar Licenças de Dependências
+
+# Repositório público não acessa o workflow reutilizável do Lar21/pontotel (privado).
+# A action em .github/actions/verificar-licencas é cópia da de lá: para atualizar, copie
+# de Lar21/pontotel/.github/actions/verificar-licencas.
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verificar-lockfiles:
+    name: Verificar licenças (lockfiles)
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Verificar licenças dos lockfiles
+        uses: ./.github/actions/verificar-licencas
