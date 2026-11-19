@@ -1,0 +1,16 @@
+name: Verificar Licenças de Dependências
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check-licenses:
+    uses: Lar21/pontotel/.github/workflows/validacao_licencas_dependencias.yml@master
